@@ -1,201 +1,3 @@
-var gameChar_x;
-var gameChar_y;
-var floorPos_y;
-var scrollPos;
-var gameChar_world_x;
-var jumpGravity;
-var isJumping;
-var spaceReleased;
-var gravityChange;
-var trees_x;
-var clouds;
-var mountains;
-var canyons;
-var collectables;
-var flagpole;
-var game_score;
-var lives;
-var lifechecker;
-var changeAnim;
-var animTimer;
-var trees_color;
-var upgrades;
-var collectable_hat;
-var collectable_feet;
-var collectable_body;
-var undoUpgrades;
-var lock;
-var isLeft;
-var isRight;
-var isFalling;
-var isPlummeting;
-var enemies;
-var platforms;
-var isPlatformContact;
-var level;
-
-function setup()
-{
-    createCanvas(1024, 576);
-	floorPos_y = height * 3/4;
-    restart();
-}
-
-function restart()
-{
-    changeAnim = false;
-    animTimer = 0;
-    trees_color = false;
-    lives = 4;
-    level = 1;
-    game_score = 0;
-    startGame();
-}
-
-function startGame()
-{
-	gameChar_y = floorPos_y;
-    gameChar_x = 0; // must be initialized in startGame before level check to keep from falling deaths counting twice
-    jumpGravity = 0;
-    gravityChange = 8; // allows for changing jump and fall speed without altering code
-    lifechecker = true;
-    upgrades = {hat: false, body: false, feet: false};
-
-	// Variable to control the background scrolling.
-	scrollPos = 0;
-
-	// Variable to store the real position of the gameChar in the game world. Needed for collision detection.
-	gameChar_world_x = gameChar_x - scrollPos;
-
-	// Boolean variables to control the movement of the game character.
-	isLeft = false;
-	isRight = false;
-	isFalling = false;
-	isPlummeting = false;
-    isJumping = false;
-    spaceReleased = true;
-    isFound = false;
-    isPlatformContact = false;
-    
-    clouds = [];
-    
-    for (i=0; i<15; i++)
-    {
-        clouds.push ({
-            pos_x: random(100,5000), 
-            pos_y: random(0,150), 
-            speed: random (0.2,0.5),
-            size: random(20,80), 
-            color: random(135,235), 
-            extend: Math.round(random(0,1))
-        });
-    }
-    
-    //Initialise arrays of scenery objects.
-    if (level == 1);
-    {
-        gameChar_x = 100;
-        trees_x = [];
-        mountains = [
-            {pos_x: 50, size: 415},
-            {pos_x: 800, size: 200},
-        ];
-        canyons = [
-            {pos_x:620, width: 90},
-            {pos_x:1400, width: 105}
-        ];
-        collectable_feet = [
-            {pos_x:215, pos_y:320, isFound: false}
-        ];
-        collectable_hat = [
-            {pos_x:735, pos_y:145, isFound: false}
-        ];
-        collectable_body =[
-            {pos_x:420, pos_y:220, isFound: false}
-        ];
-        collectables = [
-            {pos_x:75, pos_y:250, isFound: false}
-        ];
-        flagpole = {pos_x: 1250, isReached: false}
-        undoUpgrades = [
-            {start_x:10, start_y:floorPos_y-90, end_x:175, end_y:floorPos_y-90}
-        ];
-        lock = [
-            {pos_x:980, isUnlocked: false}
-        ];
-
-        enemies = [];
-        enemies.push(new Enemy(795,floorPos_y-10, 125));
-
-        platforms = [];
-        platforms.push(new createPlatforms(210,floorPos_y-110,50));
-        platforms.push(new createPlatforms(260,floorPos_y-210,50));
-        platforms.push(new createPlatforms(410,floorPos_y-210,50));
-        platforms.push(new createPlatforms(560,floorPos_y-210,50));
-        platforms.push(new createPlatforms(700,floorPos_y-270,70));
-    }
-
-    if (level == 2)
-    {
-        gameChar_x = 250;
-        trees_x = [];
-        mountains = [];
-        canyons = [
-            {pos_x:650, width: 500}
-        ];
-        collectable_feet = [
-            {pos_x:215, pos_y:320, isFound: false}
-        ];
-        collectable_hat = [
-            {pos_x:738, pos_y:floorPos_y-112, isFound: false}
-        ];
-        collectable_body =[
-            {pos_x:420, pos_y: floorPos_y, isFound: false}
-            ];
-        collectables = [
-            {pos_x:75, pos_y:250, size:40, isFound: false}
-        ];
-        flagpole = {pos_x: 2250, isReached: false}
-        undoUpgrades = [
-            {start_x:200, start_y:floorPos_y-90, end_x:200, end_y:floorPos_y}
-        ];
-        lock = [
-            {pos_x:2000, isUnlocked: false}
-        ];
-        enemies = [];    
-        enemies.push(new Enemy(20,floorPos_y-135, 100));
-        enemies.push(new Enemy(20,floorPos_y-260, 100));
-        enemies.push(new Enemy(20,floorPos_y-385, 100));
-
-        platforms = [];
-        platforms.push(new createPlatforms(-10,floorPos_y-125,160));
-        platforms.push(new createPlatforms(-10,floorPos_y-250,160));
-        platforms.push(new createPlatforms(-10,floorPos_y-375,160));
-        platforms.push(new createPlatforms(710,floorPos_y-110,55));
-        platforms.push(new createPlatforms(610,floorPos_y-215,55));
-        platforms.push(new createPlatforms(700,floorPos_y-315,305));
-    }
-
-    if (level == 3)
-    {
-        gameChar_x = 100;
-        trees_x = [];
-        mountains = [];
-        canyons = [];
-        collectable_feet = [];
-        collectable_hat = [];
-        collectable_body =[];
-        collectables = [];
-        flagpole = {pos_x: 1250, isReached: false}
-        undoUpgrades = [];
-        lock = [
-            {pos_x:2000, isUnlocked: false}
-        ];
-        enemies = [];    
-        platforms = [];
-    }
-}
-
 function draw()
 {   
     checkPlayerDie();
@@ -207,7 +9,7 @@ function draw()
             clouds.push ({
                 pos_x: 5000, 
                 pos_y: random(0,150), 
-                speed: random (0.2,0.5),
+                speed: random (0.5,1.5),
                 size: random(20,80), 
                 color: random(130,230), 
                 extend: Math.round(random(0,1))
@@ -254,15 +56,26 @@ function draw()
     for (i=0; i < platforms.length; i++)
     {
         platforms[i].draw();
+        let platformContact = platforms[i].checkContact(gameChar_world_x, gameChar_y);
+        
+        if (platformContact)
+        {
+            gameChar_y = platforms[i].y;
+        }
+        
+        if (platformContact && platforms[i].willFall == true)
+        {
+            platforms[i].isFalling = true
+        }
     }
     
     drawGround();
     
-    for(e=0; e < enemies.length; e++) //breaks if i instead. Why?
+    for(e=0; e < enemies.length; e++)
         {
             enemies[e].draw();
             enemies[e].update(gameChar_world_x,gameChar_y);
-            var isContact = enemies[e].checkContact(gameChar_world_x, gameChar_y);
+            let isContact = enemies[e].checkContact(gameChar_world_x, gameChar_y);
             
             if(isContact)
             {
@@ -296,7 +109,7 @@ function draw()
     }
     
     // Draw flagpole
-    renderFlagpole(flagpole[i]);
+    drawFlagpole(flagpole[i]);
 
     if (flagpole.isReached == false)
     {
@@ -306,35 +119,35 @@ function draw()
     //Draw upgrade items
     for (i=0; i < collectable_hat.length; i++)
     {
+        drawHat(collectable_hat[i]);
         if (collectable_hat[i].isFound == false)
         {
-            drawHat(collectable_hat[i]);
             checkHat(collectable_hat[i]);
         }
     }
     
     for (i=0; i < collectable_feet.length; i++)
     {
+        drawFeet(collectable_feet[i]);
         if (collectable_feet[i].isFound == false)
         {
-            drawFeet(collectable_feet[i]);
             checkFeet(collectable_feet[i]);
         }
     }
     
     for (i=0; i < collectable_body.length; i++)
     {
+        drawBody(collectable_body[i]);
         if (collectable_body[i].isFound == false)
         {
-            drawBody(collectable_body[i]);
             checkBody(collectable_body[i]);
         }
     }
     
-    for (i=0; i< undoUpgrades.length; i++)
+    for (u=0; u < undoUpgrades.length; u++)
     {   
-        drawUndoUpgrades(undoUpgrades[i]);
-        checkUndoUpgrades(undoUpgrades[i]);
+        drawUndoUpgrades(undoUpgrades[u]);
+        checkUndoUpgrades(undoUpgrades[u]);
     }
     
     pop();
@@ -347,7 +160,7 @@ function draw()
     translate (0,500); //Already had created it in top left, this easily moves it to bottom left
     fill(0,0,0,90);
     rect (10,0,205,65);
-    for (var n=0; n < lives; n++) //weird interaction with enemies loop breaks if both use i.
+    for (n=0; n < lives; n++)
     {
         fill (255,140,0); //hat color
         ellipse(100+n*30,80-60,24);
@@ -374,15 +187,25 @@ function draw()
         textSize(50);
         text("Game Over",width/2-150,height/2-25);
         textSize(30);
-        text("Press Space to continue",width/2-175,height/2+25);
+        text("Press 'C' to restart",width/2-175,height/2+25);
     }
     
-    if (flagpole.isReached && level < 3)
+    if (flagpole.isReached && level < 2)
     {
-        level += 1;
-        startGame();  
+        upgrades.hat = false;
+        upgrades.body = false;
+        upgrades.feet = false;
+        fill (0,0,0,100);
+        rect(0,0,width,height);
+        fill(255,255,255);
+        textSize(50);
+        text("Level Complete",width/2-150,height/2-25);
+        textSize(30);
+        text("Press 'C' for next level",width/2-135,height/2+25);
+        return;
     }
-    if (flagpole.isReached && level == 3)
+    
+    if (flagpole.isReached && level == 2)
     {
         fill (0,0,0,100);
         rect(0,0,width,height);
@@ -390,7 +213,7 @@ function draw()
         textSize(50);
         text("Game Complete",width/2-150,height/2-25);
         textSize(30);
-        text("Press Space to replay",width/2-135,height/2+25);
+        text("Press 'C' to replay",width/2-85,height/2+25);
         return; 
     }
 
@@ -439,8 +262,15 @@ function draw()
     {
         if (platforms[i].checkContact(gameChar_world_x,gameChar_y) == true)
         {
-            isPlatformContact = true;
-            break;
+            if (platforms[i].y > floorPos_y)
+            {
+                isPlatformContact = false;
+            }
+            else
+            {
+                isPlatformContact = true;
+                break;
+            }
         }
         else
         {
@@ -485,9 +315,17 @@ function draw()
 
 function keyPressed()
 {
-    if(keyCode == 32 && flagpole.isReached == true || keyCode == 32 && lives < 0) // end of level or death reset
+    if(keyCode == 67 && flagpole.isReached == true || keyCode == 67 && lives < 0) // end of level or death reset
     {
-        restart();
+        if (level < 2)
+        {
+            level += 1;
+            startGame();  
+        }
+        else
+        {
+            restart();
+        }
     }
 
     if (isPlummeting == false)
@@ -502,6 +340,7 @@ function keyPressed()
         }
         if(keyCode == 32 && jumpGravity == 0 && spaceReleased && isFalling == false || keyCode == 87 && jumpGravity == 0 && spaceReleased && isFalling == false) // space
         {
+            jumpSound.play();
             isJumping = true;
             spaceReleased = false;
         }
@@ -549,7 +388,7 @@ function drawGameChar()
         else
         {
             noStroke();
-            fill (139,0,0) //shirt color
+            fill(0,120,220); //shirt color
             rect(gameChar_x-8,gameChar_y-44,23,10);
             rect(gameChar_x-6,gameChar_y-34,21,10);
             fill(0,0,0,30); //shadow on arm
@@ -653,7 +492,7 @@ function drawGameChar()
         else
         {
             noStroke();
-            fill (139,0,0) //shirt color
+            fill(0,120,220); //shirt color
             rect(gameChar_x-14,gameChar_y-44,23,10);
             rect(gameChar_x-14,gameChar_y-34,21,10);
             fill(250,235,215); //skin color
@@ -752,7 +591,7 @@ function drawGameChar()
         else
         {
             noStroke();
-            fill (139,0,0) //shirt color
+            fill(0,120,220); //shirt color
             rect(gameChar_x-8,gameChar_y-44,23,10);
             rect(gameChar_x-6,gameChar_y-34,21,10);
             fill(250,235,215); //skin color
@@ -845,7 +684,7 @@ function drawGameChar()
         else
         {
             noStroke();
-            fill (139,0,0) //shirt color
+            fill(0,120,220); //shirt color
             rect(gameChar_x-14,gameChar_y-44,23,10);
             rect(gameChar_x-14,gameChar_y-34,21,10);
             fill(250,235,215); //skin color
@@ -939,7 +778,7 @@ function drawGameChar()
             noStroke();
             fill(250,235,215); //skin color
             ellipse(gameChar_x-12,gameChar_y-42,20,4); //left arm hides behind shirt and pants
-            fill (139,0,0); //shirt color
+            fill(0,120,220); //shirt color
             ellipse(gameChar_x,gameChar_y-40,24,50);
             fill(0,0,0,30); //shadow on arm
             ellipse(gameChar_x+11,gameChar_y-50,4,24);
@@ -1056,7 +895,7 @@ function drawGameChar()
             fill(250,235,215); //skin color
             ellipse(gameChar_x-11.5,gameChar_y-35,5,18); //arms hide behind shirt and pants
             ellipse(gameChar_x+12.5,gameChar_y-35,5,18); 
-            fill (139,0,0); //shirt color
+            fill(0,120,220); //shirt color
             rect(gameChar_x-12,gameChar_y-46,24,16);
         }
         
@@ -1144,7 +983,7 @@ function drawGameChar()
 // ---------------------------
 function drawClouds()
     {
-        for (var i=0; i < clouds.length; i++)
+        for (i=0; i < clouds.length; i++)
         {
             fill(clouds[i].color,55,55);
                 ellipse(clouds[i].pos_x,clouds[i].pos_y,clouds[i].size,clouds[i].size);
@@ -1157,13 +996,13 @@ function drawClouds()
                 ellipse(clouds[i].pos_x+clouds[i].size*.85,clouds[i].pos_y,clouds[i].size*.5,clouds[i].size*.5);
             }
             
-            clouds[i].pos_x -= clouds[i].speed / 5;
+            clouds[i].pos_x -= clouds[i].speed;
         }
     }
 
 function drawMountains()
 {
-    for (var i=0; i < mountains.length; i++)
+    for (i=0; i < mountains.length; i++)
     {
         fill(55,0,0); //body
         strokeWeight(3);
@@ -1178,15 +1017,11 @@ function drawMountains()
 
 function drawTrees()
 {
-
-    if (trees_color == false)
-    {
         trees_x.forEach(element =>
         {
-            noFill();
-            stroke(175,0,0);
-            strokeWeight(3);
+            fill(120,42,5,200);
             rect(element,floorPos_y-100,60,101);
+            fill(0,60,0,150);
             beginShape();
             vertex(element+30,floorPos_y-250);
             vertex(element-50,floorPos_y-150);
@@ -1196,21 +1031,7 @@ function drawTrees()
             vertex(element+70,floorPos_y-150);
             vertex(element+110,floorPos_y-150);
             endShape(CLOSE);
-        });
-    }
-    
-//    if (trees_color == true)
-//    {
-//        trees_x.forEach(element =>
-//        {
-//            fill(90,50,0); //trunk
-//            rect(element,floorPos_y-150,60,151);
-//            fill(0,140,0); //leaves
-//            triangle(element-50,floorPos_y-150+50,element+30,floorPos_y-150-50,element+110,floorPos_y-150+50); 
-//            triangle(element-50,floorPos_y-150,element+30,floorPos_y-150-100,element+110,floorPos_y-150);
-//        });
-//    }
-    
+        });    
     noStroke();
     noFill();
 }
@@ -1285,14 +1106,13 @@ function checkCanyon(t_canyon)
 
 function drawHat(t_hat)
 {
-    
     if (upgrades.hat == false)
     {
             noStroke();
             fill(255,140,0);
             arc(t_hat.pos_x,t_hat.pos_y-3,48,48,PI,PI/180); //hat
             rect(t_hat.pos_x-2,t_hat.pos_y-28,4,2); //hat top
-            fill(0,0,0);
+            fill(0,0,0,200);
             arc (t_hat.pos_x,t_hat.pos_y,48,26,PI,PI/180); //hat brim
             noFill();
             strokeWeight(3);
@@ -1318,22 +1138,28 @@ function drawFeet(t_feet)
     if (upgrades.feet == false)
     {
         noStroke();
-        fill (112,128,144) // gray
-        rect (t_feet.pos_x + 3, t_feet.pos_y-30, 14, 20);
-        fill (225,185,0); //gold
-        rect (t_feet.pos_x, t_feet.pos_y-30,20,6);
-        rect (t_feet.pos_x, t_feet.pos_y-20,20,6);
+        fill (220,220,220) // shoe gray
+        rect (t_feet.pos_x, t_feet.pos_y-30, 20,26);
         rect (t_feet.pos_x, t_feet.pos_y-10,30,6);
+        fill(0,0,0,70); //laces
+        rect (t_feet.pos_x+4, t_feet.pos_y-26,16,4);
+        rect (t_feet.pos_x+4, t_feet.pos_y-18,16,4);
   
     }
     else
     {
         noFill();
         stroke(255,0,0);
-        rect (t_feet.pos_x + 3, t_feet.pos_y-30, 14, 20);
-        rect (t_feet.pos_x, t_feet.pos_y-30,20,6);
-        rect (t_feet.pos_x, t_feet.pos_y-20,20,6);
-        rect (t_feet.pos_x, t_feet.pos_y-10,30,6);
+        beginShape();
+        vertex (t_feet.pos_x, t_feet.pos_y-30);
+        vertex (t_feet.pos_x+20, t_feet.pos_y-30);
+        vertex (t_feet.pos_x+20, t_feet.pos_y-10);
+        vertex (t_feet.pos_x+30, t_feet.pos_y-10);
+        vertex (t_feet.pos_x+30, t_feet.pos_y-4);
+        vertex (t_feet.pos_x, t_feet.pos_y-4);
+        endShape(CLOSE);
+        rect (t_feet.pos_x+4, t_feet.pos_y-26,16,4);
+        rect (t_feet.pos_x+4, t_feet.pos_y-18,16,4);
     }
     
     noStroke();
@@ -1344,13 +1170,39 @@ function drawBody(t_body)
 {
     if (upgrades.body == false)
     {
-        textSize(50);
-        fill(0,255,0);
-        text('B',t_body.pos_x,t_body.pos_y);
+        noStroke();
+        fill(0,120,220);
+        rect(t_body.pos_x, t_body.pos_y-30,30,30);
+        push();
+        translate(t_body.pos_x-11, t_body.pos_y-18);
+        rotate(7*PI/4)
+        rect(0,0,15,10);
+        pop();
+        push();
+        translate(t_body.pos_x+34, t_body.pos_y-11);
+        rotate(5*PI/4)
+        rect(0,0,15,10);
+        pop();
+        fill(0,0,0,180);
+        arc (t_body.pos_x+15,t_body.pos_y-30,30,20,2*PI, PI);
     }
     else
     {
-        
+        noFill();
+        stroke(255,0,0);
+        beginShape();
+        vertex(t_body.pos_x+30, t_body.pos_y-30);
+        vertex(t_body.pos_x+40, t_body.pos_y-19);
+        vertex(t_body.pos_x+33, t_body.pos_y-15);
+        vertex(t_body.pos_x+30, t_body.pos_y-17);
+        vertex(t_body.pos_x+30, t_body.pos_y);
+        vertex(t_body.pos_x, t_body.pos_y);
+        vertex(t_body.pos_x, t_body.pos_y-17);
+        vertex(t_body.pos_x-3, t_body.pos_y-15);
+        vertex(t_body.pos_x-10, t_body.pos_y-19);
+        vertex(t_body.pos_x, t_body.pos_y-30);
+        endShape();
+        arc (t_body.pos_x+15,t_body.pos_y-30,30,20,2*PI, PI);
     }
     
     noStroke();
@@ -1377,20 +1229,35 @@ function drawCollectable(t_collectable, t_lock)
         noFill();
         stroke(255,0,0);
         ellipse (t_collectable.pos_x,t_collectable.pos_y,18,18);
-        rect (t_collectable.pos_x+8,t_collectable.pos_y-4,20,5);
-        rect (t_collectable.pos_x+12,t_collectable.pos_y,4,7);
-        rect (t_collectable.pos_x+18,t_collectable.pos_y,4,4);
-        rect (t_collectable.pos_x+24,t_collectable.pos_y,4,7);
         ellipse (t_collectable.pos_x,t_collectable.pos_y,11,11);
+        beginShape();
+        vertex(t_collectable.pos_x+9, t_collectable.pos_y-4);
+        vertex(t_collectable.pos_x+29, t_collectable.pos_y-4);
+        vertex(t_collectable.pos_x+29, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+28, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+28, t_collectable.pos_y+7);
+        vertex(t_collectable.pos_x+24, t_collectable.pos_y+7);
+        vertex(t_collectable.pos_x+24, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+22, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+22, t_collectable.pos_y+5);
+        vertex(t_collectable.pos_x+18, t_collectable.pos_y+5);
+        vertex(t_collectable.pos_x+18, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+16, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+16, t_collectable.pos_y+7);
+        vertex(t_collectable.pos_x+12, t_collectable.pos_y+7);
+        vertex(t_collectable.pos_x+12, t_collectable.pos_y+1);
+        vertex(t_collectable.pos_x+9, t_collectable.pos_y+1);
+        endShape(CLOSE);
     }
        
+//draw locked door
     stroke (40,40,40);
     strokeWeight(5);
     fill(150,150,150);
-    rect (t_lock.pos_x, floorPos_y-200, 30,200);
+    rect (t_lock.pos_x, floorPos_y-350, 30,350);
     push();
     noStroke();
-    translate(9,25);
+    translate(9,-115);
     fill (247,220,111);
     ellipse (t_lock.pos_x,floorPos_y-200,9,9);
     rect (t_lock.pos_x+3,floorPos_y-200-2,12,2.5);
@@ -1401,6 +1268,7 @@ function drawCollectable(t_collectable, t_lock)
     ellipse (t_lock.pos_x,floorPos_y-200,5,5);
     pop()
     noFill();
+    noStroke();
     strokeWeight(1);
 }
 
@@ -1421,7 +1289,7 @@ function checkCollectable(t_collectable, t_lock)
 
 function checkHat(t_hat)
 {
-    if (dist(t_hat.pos_x,t_hat.pos_y,gameChar_world_x,gameChar_y) < 25 || dist(t_hat.pos_x,t_hat.pos_y,gameChar_world_x,gameChar_y-73) < 35) 
+    if (dist(t_hat.pos_x+15,t_hat.pos_y-10,gameChar_world_x,gameChar_y-20) < 45) 
     {
         t_hat.isFound = true;
         upgrades.hat = true;
@@ -1430,7 +1298,7 @@ function checkHat(t_hat)
 
 function checkFeet(t_feet)
 {
-    if (dist(t_feet.pos_x,t_feet.pos_y,gameChar_world_x,gameChar_y) < 25 || dist(t_feet.pos_x,t_feet.pos_y,gameChar_world_x,gameChar_y-73) < 35) 
+    if (dist(t_feet.pos_x+15,t_feet.pos_y-15,gameChar_world_x,gameChar_y-20) < 45) 
     {
         t_feet.isFound = true;
         upgrades.feet = true;
@@ -1439,7 +1307,7 @@ function checkFeet(t_feet)
 
 function checkBody(t_body)
 {
-    if (dist(t_body.pos_x,t_body.pos_y,gameChar_world_x,gameChar_y) < 25 || dist(t_body.pos_x,t_body.pos_y,gameChar_world_x,gameChar_y-73) < 35) 
+    if (dist(t_body.pos_x+15,t_body.pos_y-15,gameChar_world_x,gameChar_y-20) < 45) 
     {
         t_body.isFound = true;
         upgrades.body = true;
@@ -1472,9 +1340,19 @@ function checkUndoUpgrades(t_undo)
             upgrades.body = false;
             upgrades.feet = false;
             upgrades.hat = false;
-            collectable_feet[i].isFound = false;
-            collectable_hat[i].isFound = false;
-            collectable_body[i].isFound = false;
+        
+            for (j=0; j < collectable_feet.length; j++)
+            {
+                collectable_feet[j].isFound = false;
+            }
+            for (j=0; j < collectable_feet.length; j++)
+            {
+                collectable_hat[j].isFound = false;
+            }
+            for (j=0; j < collectable_feet.length; j++)
+            {
+                collectable_body[j].isFound = false;
+            }
         }
     }
 
@@ -1484,27 +1362,26 @@ function checkUndoUpgrades(t_undo)
 // Flagpole render and check function
 // ----------------------------------
 
-function renderFlagpole()
+function drawFlagpole()
 {
-    fill (0,0,0);
-    rect (flagpole.pos_x,floorPos_y-80,3,80);
-    fill (200,0,0);
+    fill (40,40,40);
+    rect (flagpole.pos_x,flagpole.pos_y-80,3,80);
 
     if (flagpole.isReached == false)
     {
         fill (200,0,0);
-        triangle (flagpole.pos_x+3,floorPos_y-78,flagpole.pos_x+18,floorPos_y-68,flagpole.pos_x+3,floorPos_y-58);
+        triangle (flagpole.pos_x+3,flagpole.pos_y-78,flagpole.pos_x+18,flagpole.pos_y-68,flagpole.pos_x+3,flagpole.pos_y-58);
     }
     else if (flagpole.isReached)
     {
         fill (0,200,0);
-        triangle (flagpole.pos_x+3,floorPos_y-78,flagpole.pos_x+18,floorPos_y-68,flagpole.pos_x+3,floorPos_y-58);
+        triangle (flagpole.pos_x+3,flagpole.pos_y-78,flagpole.pos_x+18,flagpole.pos_y-68,flagpole.pos_x+3,flagpole.pos_y-58);
     }
 }
 
 function checkFlagpole ()
 {
-    if (dist(flagpole.pos_x,floorPos_y,gameChar_world_x,gameChar_y) < 10 || dist(flagpole.pos_x,floorPos_y,gameChar_world_x,gameChar_y-73) < 10) 
+    if (dist(flagpole.pos_x,flagpole.pos_y,gameChar_world_x,gameChar_y) < 40 && upgrades.hat && upgrades.feet && upgrades.body) 
     {
         flagpole.isReached = true;
     }
@@ -1560,27 +1437,29 @@ function Enemy(x,y, range)
 
             if (upgrades.feet == false)
             {
+                this.inc = constrain(this.inc,-2,2);
+                
                 if (this.currentX >=  this.x + this.range)
                 {
-                    this.inc = -3;
+                    this.inc = -2;
                 }
                 else if (this.currentX <= this.x)
                 {
-                    this.inc = 3;
+                    this.inc = 2;
                 }
             }
             else
             {
-                this.inc = this.inc *3; //needed to create immediate speed change, not at end of cycle
-                this.inc = constrain(this.inc,-7,7);
-                
+                this.inc = this.inc *5; //needed to create immediate speed change, not at end of cycle
+                this.inc = constrain(this.inc,-9,9);
+            
                 if (this.currentX >=  this.x + this.range)
                 {
-                    this.inc = -7;
+                    this.inc = -9;
                 }
                 else if (this.currentX <= this.x)
                 {
-                    this.inc = 7;
+                    this.inc = 9;
                 }
             }
 
@@ -1631,20 +1510,20 @@ function Enemy(x,y, range)
             
             if (this.rocket.x > gcx)
             {
-                this.rocket.incX -= random(0.2, 0.3);
+                this.rocket.incX -= random(0.15, 0.35);
             }
             else
             {
-                this.rocket.incX += random(0.2, 0.3);
+                this.rocket.incX += random(0.15, 0.35);
             }
             if (this.rocket.y > gcy-35)
             {
                 
-                this.rocket.incY -= random(0.2, 0.3);
+                this.rocket.incY -= random(0.15, 0.35);
             }
             else
             {
-                this.rocket.incY += random(0.2, 0.3);
+                this.rocket.incY += random(0.15, 0.35);
             }
         if (upgrades.hat == false) //reset rockets if you cross undo line
         {
@@ -1683,8 +1562,8 @@ function Enemy(x,y, range)
     
     this.checkContact = function(gc_x, gc_y)
     {
-        var d = dist(gc_x, gc_y-30, this.currentX+5, this.y-5);
-        var b2 = 50; //set to 50 to not trigger interaction upon load, needed to solve weird interaction with right side bullets not checking properly inside the for loop on the same line as the rocket check
+        let d = dist(gc_x, gc_y-30, this.currentX+5, this.y-5);
+        let b2 = 50; //set to 50 to not trigger interaction upon load, needed to solve right side bullets
         
     if (upgrades.hat || upgrades.body)
     {
@@ -1712,26 +1591,46 @@ function Enemy(x,y, range)
     }
 }
 
-function createPlatforms(x,y,length)
+function createPlatforms(x,y,length,will,is)
 {
-    var p = {
+    let p = {
         x: x,
         y: y,
-        length: length,
+        l: length,
+        willFall: will,
+        isFalling: is,
         draw: function() {
-            strokeWeight(2);
-            stroke(155,155,155);
-            fill(125,125,125,225);
-            rect(this.x, this.y, this.length, 20);
-            noStroke();
-            strokeWeight(1);
+            
+            if (p.willFall == false)
+            {
+                strokeWeight(2);
+                stroke(155,155,155);
+                fill(125,125,125,225);
+                rect(this.x, this.y, this.l, 20);
+                noStroke();
+                strokeWeight(1);
+            }
+            else
+            {
+                strokeWeight(2);
+                stroke(115,115,115);
+                fill(65,65,65,225); // make 'em darker
+                rect(this.x, this.y, this.l, 20);
+                noStroke();
+                strokeWeight(1);
+            }
+            if (p.isFalling)
+            {
+                p.y += 3; //create falling movement
+            }
+
         },
         checkContact: function(gc_x, gc_y)
         {
-            if(gc_x > this.x - 10 && gc_x < this.x + 10 + this.length)
+            if(gc_x > this.x - 10 && gc_x < this.x + 10 + this.l)
             {
-                var d = this.y - gc_y;
-                if(d >= 0 && d <= 6)
+                let d = this.y - gc_y;
+                if(d >= -2 && d <= 6)
                 {
                     return true;
                 }
